@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ExtractVariables continueOnError="false" enabled="true" name="EV-ExtractRouteDecision">
+    <DisplayName>EV-ExtractRouteDecision</DisplayName>
+    <Source>semanticRouterResponse.content</Source>
+    <JSONPayload>
+        <Variable name="route_name">
+            <JSONPath>$.route</JSONPath>
+        </Variable>
+        <Variable name="similarity_score">
+            <JSONPath>$.similarity_score</JSONPath>
+        </Variable>
+    </JSONPayload>
+</ExtractVariables>

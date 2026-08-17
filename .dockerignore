@@ -1,0 +1,14 @@
+.git
+.gitignore
+.dockerignore
+README.md
+deploy.sh
+apigee/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+.DS_Store

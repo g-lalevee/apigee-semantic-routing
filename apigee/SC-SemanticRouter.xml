@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ServiceCallout continueOnError="false" enabled="true" name="SC-SemanticRouter">
+    <DisplayName>SC-SemanticRouter</DisplayName>
+    <Request clearPayload="true" variable="semanticRouterRequest">
+        <Set>
+            <Headers>
+                <Header name="Content-Type">application/json</Header>
+            </Headers>
+            <Payload contentType="application/json">
+                {
+                    "text": "{request.content}"
+                }
+            </Payload>
+            <Verb>POST</Verb>
+            <Path>/v1/route</Path>
+        </Set>
+    </Request>
+    <Response>semanticRouterResponse</Response>
+    <HTTPTargetConnection>
+        <Authentication>
+            <GoogleIDToken>
+                <Audience>https://semantic-router-xyz-uc.a.run.app</Audience>
+            </GoogleIDToken>
+        </Authentication>
+        <URL>https://semantic-router-xyz-uc.a.run.app</URL>
+    </HTTPTargetConnection>
+</ServiceCallout>

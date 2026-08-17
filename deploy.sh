@@ -42,7 +42,7 @@ fi
 
 # 2. Build and push image using Cloud Build
 echo "[2/3] Building container image via Google Cloud Build..."
-gcloud builds submit \
+gcloud builds submit image \
     --tag "${IMAGE_URI}" \
     --project="${PROJECT_ID}"
 

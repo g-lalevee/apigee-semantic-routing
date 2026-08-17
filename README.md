@@ -15,17 +15,23 @@ Production-ready, low-latency semantic router microservice built with **FastAPI*
 
 ```text
 .
-├── Dockerfile                  # Container definition with baked model weights
-├── README.md                   # Documentation and usage guide
+├── README.md                   # Documentation and architecture guide
 ├── deploy.sh                   # Automated GCP Cloud Run deployment script
-├── main.py                     # FastAPI application & Semantic Router definitions
-├── preload_models.py           # Build-time model downloader
-├── requirements.txt            # Python dependencies
-├── apigee/
-│   ├── SC-SemanticRouter.xml       # Apigee ServiceCallout policy
-│   └── EV-ExtractRouteDecision.xml  # Apigee ExtractVariables policy
-├── .dockerignore
-└── .gitignore
+├── .gitignore
+├── apigee/                     # Apigee API Proxy Policies
+│   ├── SC-SemanticRouter.xml       # ServiceCallout policy (with Google ID Token auth)
+│   └── EV-ExtractRouteDecision.xml  # ExtractVariables policy
+└── image/                      # Containerized Microservice Code
+    ├── Dockerfile                  # Production container definition (baked model weights)
+    ├── main.py                     # FastAPI application & Semantic Router logic
+    ├── preload_models.py           # Build-time model downloader
+    ├── requirements.txt            # Microservice Python dependencies
+    ├── requirements-dev.txt        # Development/Test dependencies
+    ├── pytest.ini                  # Pytest configuration
+    ├── .dockerignore               # Docker ignore rules
+    └── tests/                      # Automated test suite
+        ├── conftest.py
+        └── test_main.py
 ```
 
 ---

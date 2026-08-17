@@ -6,8 +6,9 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request, status
 from pydantic import BaseModel, Field
-from semantic_router import Route, RouteLayer
+from semantic_router import Route
 from semantic_router.encoders import FastEmbedEncoder
+from semantic_router.routers import SemanticRouter
 
 # Configure structured logging
 logging.basicConfig(
@@ -16,8 +17,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("semantic-router-service")
 
-# Global reference for RouteLayer
-route_layer: Optional[RouteLayer] = None
+# Global reference for router
+router: Optional[SemanticRouter] = None
 
 # ---------------------------------------------------------
 # 1. Route Definitions
@@ -72,8 +73,8 @@ rag_tier = Route(
 # ---------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global route_layer
-    logger.info("Initializing local FastEmbed encoder and RouteLayer...")
+    global router
+    logger.info("Initializing local FastEmbed encoder and SemanticRouter...")
 
     # FastEmbed uses local baked weights without contacting external APIs
     model_name = os.getenv("EMBEDDING_MODEL_NAME", "BAAI/bge-small-en-v1.5")
@@ -85,12 +86,12 @@ async def lifespan(app: FastAPI):
     )
 
     routes = [fast_tier, reasoning_tier, rag_tier]
-    route_layer = RouteLayer(encoder=encoder, routes=routes)
+    router = SemanticRouter(encoder=encoder, routes=routes)
 
     # Perform JIT model warmup to eliminate first-request latency spikes
     logger.info("Warming up embedding model and index...")
     warmup_start = time.perf_counter()
-    _ = route_layer("warmup probe text")
+    _ = router("warmup probe text")
     warmup_duration_ms = (time.perf_counter() - warmup_start) * 1000
     logger.info(f"Model warmup complete in {warmup_duration_ms:.2f}ms. Ready to serve.")
 
@@ -146,10 +147,10 @@ class HealthResponse(BaseModel):
     summary="Liveness and Readiness Probe",
 )
 async def healthz():
-    if route_layer is None:
+    if router is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Route layer is not ready",
+            detail="Router is not ready",
         )
     return HealthResponse(status="healthy")
 
@@ -161,16 +162,16 @@ async def healthz():
     summary="Evaluate Semantic Route",
 )
 async def evaluate_route(request: RouteRequest):
-    if route_layer is None:
+    if router is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="RouteLayer not initialized",
+            detail="Router not initialized",
         )
 
     start_time = time.perf_counter()
 
     try:
-        choice = route_layer(request.text)
+        choice = router(request.text)
 
         # Extract route name and score with safe fallback handling
         matched_route = choice.name if (choice and choice.name) else "default"

@@ -214,7 +214,7 @@ chmod +x deploy.sh
 
 # Example 1: Run with explicit environment variables (Recommended)
 PROJECT_ID="<YOUR-GCP-PROJECT>" \
-REGION="europe-west1" \
+REGION="<YOUR-REGION>" \
 REPO_NAME="semantic-router-repo" \
 IMAGE_TAG="v1.0.3" \
 ./deploy.sh
@@ -232,7 +232,7 @@ To allow your Apigee API proxy to call the authenticated Cloud Run service, gran
 
 ```bash
 gcloud run services add-iam-policy-binding semantic-router \
-    --region="europe-west1" \
+    --region="<YOUR-REGION>" \
     --project="<YOUR-GCP-PROJECT>" \
     --member="serviceAccount:YOUR_APIGEE_SA@<YOUR-GCP-PROJECT>.iam.gserviceaccount.com" \
     --role="roles/run.invoker"

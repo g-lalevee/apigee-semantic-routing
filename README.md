@@ -135,31 +135,36 @@ To customize the routing behavior for your enterprise workloads:
 | **`rag-tier`** | `"What is our company's refund policy for enterprise tiers?"`<br>`"How do I submit bereavement leave per internal HR guidelines?"`<br>`"Retrieve the latest Q3 engineering roadmap from our wiki."` | Enterprise documentation, HR/legal policies, and internal database records. |
 | **`default`** | `"Write a creative fantasy poem about a purple alien planet."`<br>`"What ingredients do I need to make authentic pizza dough?"` | General chitchat or creative tasks not matching a specific threshold. |
 
-#### Testing via Apigee Proxy
+#### Testing Cloud Run Service
 
 ```bash
-# Apigee Gateway Endpoint
-APIGEE_ENDPOINT="https://<YOUR-APIGEE-HOSTNAME>/<BASE-PATH>"
+# Set Cloud Run Endpoint & IAM Identity Token
+SERVICE_URL="https://<YOUR-CLOUD-RUN-URL>"
+TOKEN=$(gcloud auth print-identity-token)
 
 # 1. Test fast-tier
-curl -s -X POST "${APIGEE_ENDPOINT}/v1/route" \
+curl -s -X POST "${SERVICE_URL}/v1/route" \
+  -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"text": "Translate this sentence to Spanish"}'
 
 # 2. Test reasoning-tier
-curl -s -X POST "${APIGEE_ENDPOINT}/v1/route" \
+curl -s -X POST "${SERVICE_URL}/v1/route" \
+  -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"text": "Solve this differential equation and prove the theorem step by step"}'
 
 # 3. Test rag-tier
-curl -s -X POST "${APIGEE_ENDPOINT}/v1/route" \
+curl -s -X POST "${SERVICE_URL}/v1/route" \
+  -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"text": "What is our company internal HR policy on bereavement leave?"}'
 
 # 4. Test default
-curl -s -X POST "${APIGEE_ENDPOINT}/v1/route" \
+curl -s -X POST "${SERVICE_URL}/v1/route" \
+  -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"text": "Write a fictional story about a dragon"}'
+  -d '{"text": "Write a fictional fantasy story about a dragon"}'
 ```
 
 ---

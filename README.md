@@ -59,6 +59,73 @@ Production-ready, low-latency semantic router microservice built with **FastAPI*
 }
 ```
 
+## How Semantic Routing Works (Route Definitions)
+
+The **Route Definitions** in [`image/main.py`](image/main.py) form the decision-making engine of the microservice. They define the intent categories that incoming user queries are classified into based on **meaning (semantics)** rather than keyword matching.
+
+### 1. Anatomy of a `Route`
+
+Each route is configured with three key parameters:
+
+```python
+fast_tier = Route(
+    name="fast-tier",          # 1. Identifier returned to Apigee
+    utterances=[               # 2. Training example sentences
+        "Hello",
+        "What is the capital of France?",
+        "Translate this sentence to Spanish",
+        "Summarize this short email",
+    ],
+    score_threshold=0.65,      # 3. Minimum cosine similarity confidence score (0.0 - 1.0)
+)
+```
+
+- **`name`**: The category identifier returned in the JSON response (e.g. `{"route": "fast-tier", "similarity_score": 0.82}`). Apigee uses this value in `<RouteRule>` conditions.
+- **`utterances`**: Example sentences defining the semantic "fingerprint" of this route. The local FastEmbed model converts these into 384-dimensional dense vectors. Similar phrases match automatically without exact keyword matching.
+- **`score_threshold`**: The confidence threshold. If the highest similarity score for an incoming prompt is below this threshold, the service falls back to `"default"`.
+
+---
+
+### 2. Runtime Evaluation Flow
+
+```
+Incoming Request: "Could you please translate this phrase to French?"
+                         │
+                         ▼
+        [FastEmbed converts text to 384d vector in memory]
+                         │
+                         ▼
+         [Calculates Cosine Similarity against all Route Vectors]
+                         │
+     ┌───────────────────┼───────────────────┐
+     ▼                   ▼                   ▼
+"fast-tier"       "reasoning-tier"       "rag-tier"
+Score: 0.83          Score: 0.21         Score: 0.15
+     │
+     ▼
+Score (0.83) >= Threshold (0.65)? ──▶ YES ──▶ Return {"route": "fast-tier"}
+```
+
+---
+
+### 3. Routing Tier Architecture with Apigee
+
+| Route Name | Intended Use Case | Target Backend in Apigee |
+| :--- | :--- | :--- |
+| **`fast-tier`** | Greetings, short lookups, translations, quick summaries | **Gemini 1.5 Flash** *(low latency & cost)* |
+| **`reasoning-tier`** | Complex math, multi-step code architecture, deep logic | **Gemini 1.5 Pro / Thinking** *(high reasoning)* |
+| **`rag-tier`** | Internal HR policies, SLAs, enterprise customer records | **Vertex AI Search / RAG Pipeline** |
+| **`default`** | Queries not matching any specific route threshold | **Default LLM Target** |
+
+---
+
+### 4. Customizing Routes
+
+To customize the routing behavior for your enterprise workloads:
+1. **Add new routes**: Create additional `Route(...)` objects in [`image/main.py`](image/main.py) (e.g. `sql-generation-tier`, `troubleshooting-tier`).
+2. **Tune confidence thresholds**: Adjust `score_threshold` (e.g., raise to `0.75` for stricter matching or lower to `0.55` for broader matching).
+3. **Expand utterances**: Add domain-specific phrases to the `utterances` list of any route.
+
 ---
 
 ## Deployment to Google Cloud Run

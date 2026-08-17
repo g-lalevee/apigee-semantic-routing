@@ -225,6 +225,86 @@ IMAGE_TAG="v1.0.3" \
 
 ---
 
+## Apigee API Proxy Configuration
+
+Follow these steps to create and configure an Apigee API Proxy that uses the two policies provided in the [`apigee/`](apigee/) folder to dynamically classify and route user queries to downstream LLMs:
+
+### Step 1: Create a Reverse Proxy in Apigee
+1. In the **Apigee Console**, navigate to **Proxy development > API Proxies > Create**.
+2. Select **Reverse proxy (most common)**.
+3. Set **Proxy Name** (e.g., `semantic-llm-router`) and **Base Path** (e.g., `/v1/chat`).
+4. Set a placeholder Target (e.g. `https://generativelanguage.googleapis.com`).
+
+---
+
+### Step 2: Attach the 2 Policies to Request PreFlow
+
+Import [`apigee/SC-SemanticRouter.xml`](apigee/SC-SemanticRouter.xml) and [`apigee/EV-ExtractRouteDecision.xml`](apigee/EV-ExtractRouteDecision.xml) into your proxy policies directory, and attach them sequentially in the **ProxyEndpoint Request PreFlow**:
+
+```xml
+<ProxyEndpoint name="default">
+    <PreFlow name="PreFlow">
+        <Request>
+            <!-- 1. Invoke Cloud Run Semantic Router with user prompt -->
+            <Step>
+                <Name>SC-SemanticRouter</Name>
+            </Step>
+            <!-- 2. Extract route name and similarity score into flow variables -->
+            <Step>
+                <Name>EV-ExtractRouteDecision</Name>
+            </Step>
+        </Request>
+        <Response/>
+    </PreFlow>
+    ...
+</ProxyEndpoint>
+```
+
+---
+
+### Step 3: Configure Conditional Route Rules (`default.xml`)
+
+In your ProxyEndpoint configuration (`proxies/default.xml`), define conditional `<RouteRule>` elements that inspect the extracted flow variable `route_name`:
+
+```xml
+<ProxyEndpoint name="default">
+    ...
+    <!-- Dynamic Semantic Routing Rules -->
+    <RouteRule name="FastTierRoute">
+        <Condition>route_name = "fast-tier"</Condition>
+        <TargetEndpoint>Target-Gemini-Flash</TargetEndpoint>
+    </RouteRule>
+
+    <RouteRule name="ReasoningTierRoute">
+        <Condition>route_name = "reasoning-tier"</Condition>
+        <TargetEndpoint>Target-Gemini-Pro</TargetEndpoint>
+    </RouteRule>
+
+    <RouteRule name="RAGTierRoute">
+        <Condition>route_name = "rag-tier"</Condition>
+        <TargetEndpoint>Target-Vertex-Search-RAG</TargetEndpoint>
+    </RouteRule>
+
+    <!-- Fallback Route when confidence threshold is not met -->
+    <RouteRule name="DefaultRoute">
+        <TargetEndpoint>Target-Default-LLM</TargetEndpoint>
+    </RouteRule>
+</ProxyEndpoint>
+```
+
+---
+
+### Step 4: Configure Target Endpoints
+
+Create the corresponding TargetEndpoint definitions under `targets/` in your Apigee proxy bundle:
+
+- `targets/Target-Gemini-Flash.xml`: Configured for low-latency queries (Gemini 1.5 Flash).
+- `targets/Target-Gemini-Pro.xml`: Configured for deep analytical logic (Gemini 1.5 Pro / Thinking).
+- `targets/Target-Vertex-Search-RAG.xml`: Configured for enterprise internal search & retrieval.
+- `targets/Target-Default-LLM.xml`: Configured for general default queries.
+
+---
+
 ### 4. Post-Deployment Steps
 
 #### A. Grant Apigee Invoker Permissions

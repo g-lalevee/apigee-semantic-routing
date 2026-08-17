@@ -19,9 +19,9 @@
     <HTTPTargetConnection>
         <Authentication>
             <GoogleIDToken>
-                <Audience>https://semantic-router-xyz-uc.a.run.app</Audience>
+                <Audience>https://semantic-router-rafyj6qfzq-ew.a.run.app</Audience>
             </GoogleIDToken>
         </Authentication>
-        <URL>https://semantic-router-xyz-uc.a.run.app</URL>
+        <URL>https://semantic-router-rafyj6qfzq-ew.a.run.app</URL>
     </HTTPTargetConnection>
 </ServiceCallout>

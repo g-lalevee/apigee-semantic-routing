@@ -86,7 +86,7 @@ async def lifespan(app: FastAPI):
     )
 
     routes = [fast_tier, reasoning_tier, rag_tier]
-    router = SemanticRouter(encoder=encoder, routes=routes)
+    router = SemanticRouter(encoder=encoder, routes=routes, auto_sync="local")
 
     # Perform JIT model warmup to eliminate first-request latency spikes
     logger.info("Warming up embedding model and index...")

@@ -26,12 +26,7 @@ Production-ready, low-latency semantic router microservice built with **FastAPI*
     ├── main.py                     # FastAPI application & Semantic Router logic
     ├── preload_models.py           # Build-time model downloader
     ├── requirements.txt            # Microservice Python dependencies
-    ├── requirements-dev.txt        # Development/Test dependencies
-    ├── pytest.ini                  # Pytest configuration
-    ├── .dockerignore               # Docker ignore rules
-    └── tests/                      # Automated test suite
-        ├── conftest.py
-        └── test_main.py
+    └── .dockerignore               # Docker ignore rules
 ```
 
 ---

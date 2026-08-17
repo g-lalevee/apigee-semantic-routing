@@ -117,14 +117,50 @@ Score (0.83) >= Threshold (0.65)? ──▶ YES ──▶ Return {"route": "fast
 | **`rag-tier`** | Internal HR policies, SLAs, enterprise customer records | **Vertex AI Search / RAG Pipeline** |
 | **`default`** | Queries not matching any specific route threshold | **Default LLM Target** |
 
----
-
 ### 4. Customizing Routes
 
 To customize the routing behavior for your enterprise workloads:
 1. **Add new routes**: Create additional `Route(...)` objects in [`image/main.py`](image/main.py) (e.g. `sql-generation-tier`, `troubleshooting-tier`).
 2. **Tune confidence thresholds**: Adjust `score_threshold` (e.g., raise to `0.75` for stricter matching or lower to `0.55` for broader matching).
 3. **Expand utterances**: Add domain-specific phrases to the `utterances` list of any route.
+
+---
+
+### 5. Sample Prompts by Routing Tier
+
+| Route | Sample User Prompt | Semantic Match Reason |
+| :--- | :--- | :--- |
+| **`fast-tier`** | `"Translate 'Thank you very much' into Spanish."`<br>`"What is the capital city of France?"`<br>`"Summarize this short email into two bullets."` | High-frequency factual lookups, translation, and text utilities. |
+| **`reasoning-tier`** | `"Solve this system of differential equations step by step."`<br>`"Write a lock-free concurrent queue in C++."`<br>`"Analyze the EBITDA and cash-flow risk of this acquisition."` | Complex math, multi-step algorithms, deep logic, and architectural analysis. |
+| **`rag-tier`** | `"What is our company's refund policy for enterprise tiers?"`<br>`"How do I submit bereavement leave per internal HR guidelines?"`<br>`"Retrieve the latest Q3 engineering roadmap from our wiki."` | Enterprise documentation, HR/legal policies, and internal database records. |
+| **`default`** | `"Write a creative fantasy poem about a purple alien planet."`<br>`"What ingredients do I need to make authentic pizza dough?"` | General chitchat or creative tasks not matching a specific threshold. |
+
+#### Testing via Apigee Proxy
+
+```bash
+# Apigee Gateway Endpoint
+APIGEE_ENDPOINT="https://<YOUR-APIGEE-HOSTNAME>/<BASE-PATH>"
+
+# 1. Test fast-tier
+curl -s -X POST "${APIGEE_ENDPOINT}/v1/route" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Translate this sentence to Spanish"}'
+
+# 2. Test reasoning-tier
+curl -s -X POST "${APIGEE_ENDPOINT}/v1/route" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Solve this differential equation and prove the theorem step by step"}'
+
+# 3. Test rag-tier
+curl -s -X POST "${APIGEE_ENDPOINT}/v1/route" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "What is our company internal HR policy on bereavement leave?"}'
+
+# 4. Test default
+curl -s -X POST "${APIGEE_ENDPOINT}/v1/route" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Write a fictional story about a dragon"}'
+```
 
 ---
 

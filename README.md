@@ -60,42 +60,6 @@ Production-ready, low-latency semantic router microservice built with **FastAPI*
 
 ---
 
-## Local Development
-
-```bash
-# Create and activate virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run preload script (downloads model to local cache)
-python preload_models.py
-
-# Start development server
-uvicorn main:app --host 0.0.0.0 --port 8080 --reload
-```
-
----
-
-## Local Docker Testing
-
-```bash
-# Build the container (model is baked in during build)
-docker build -t semantic-router:local .
-
-# Run container
-docker run -p 8080:8080 -e PORT=8080 semantic-router:local
-
-# Test routing endpoint
-curl -X POST http://localhost:8080/v1/route \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Solve this differential equation step by step"}'
-```
-
----
-
 ## Deployment to Google Cloud Run
 
 Execute the automated deployment script:

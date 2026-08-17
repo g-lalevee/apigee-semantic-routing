@@ -6,9 +6,8 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request, status
 from pydantic import BaseModel, Field
-from semantic_router import Route
+from semantic_router import Route, RouteLayer
 from semantic_router.encoders import FastEmbedEncoder
-from semantic_router.layer import RouteLayer
 
 # Configure structured logging
 logging.basicConfig(

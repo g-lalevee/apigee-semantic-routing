@@ -213,7 +213,7 @@ Make the script executable (if not already done) and execute with your desired c
 chmod +x deploy.sh
 
 # Example 1: Run with explicit environment variables (Recommended)
-PROJECT_ID="bap-emea-apigee-5" \
+PROJECT_ID="<YOUR-GCP-PROJECT>" \
 REGION="europe-west1" \
 REPO_NAME="semantic-router-repo" \
 IMAGE_TAG="v1.0.3" \
@@ -233,8 +233,8 @@ To allow your Apigee API proxy to call the authenticated Cloud Run service, gran
 ```bash
 gcloud run services add-iam-policy-binding semantic-router \
     --region="europe-west1" \
-    --project="bap-emea-apigee-5" \
-    --member="serviceAccount:YOUR_APIGEE_SA@bap-emea-apigee-5.iam.gserviceaccount.com" \
+    --project="<YOUR-GCP-PROJECT>" \
+    --member="serviceAccount:YOUR_APIGEE_SA@<YOUR-GCP-PROJECT>.iam.gserviceaccount.com" \
     --role="roles/run.invoker"
 ```
 
@@ -245,9 +245,9 @@ Copy the output **Service URL** from `deploy.sh` and update [`apigee/SC-Semantic
 <HTTPTargetConnection>
     <Authentication>
         <GoogleIDToken>
-            <Audience>https://semantic-router-rafyj6qfzq-ew.a.run.app</Audience>
+            <Audience>https://<YOUR-CLOUD-RUN-URL></Audience>
         </GoogleIDToken>
     </Authentication>
-    <URL>https://semantic-router-rafyj6qfzq-ew.a.run.app</URL>
+    <URL>https://<YOUR-CLOUD-RUN-URL></URL>
 </HTTPTargetConnection>
 ```

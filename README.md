@@ -1,6 +1,12 @@
 # Semantic Router Microservice for Google Cloud Run & Apigee
 
-Production-ready, low-latency semantic router microservice built with **FastAPI** and [Aurelio Labs Semantic Router](https://github.com/aurelio-labs/semantic-router) designed for enterprise API gateway integration (Apigee `ServiceCallout`).
+[![PyPI status](https://img.shields.io/pypi/status/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/) 
+
+**This is not an official Google product.**<BR>This implementation is not an official Google product, nor is it part of an official Google product. Support is available on a best-effort basis via GitHub.
+
+***
+
+Low-latency semantic router microservice built with **FastAPI** and [Aurelio Labs Semantic Router](https://github.com/aurelio-labs/semantic-router) designed for enterprise API gateway integration (Apigee `ServiceCallout`).
 
 ## Key Features
 
@@ -22,7 +28,7 @@ Production-ready, low-latency semantic router microservice built with **FastAPI*
 │   ├── SC-SemanticRouter.xml       # ServiceCallout policy (with Google ID Token auth)
 │   └── EV-ExtractRouteDecision.xml  # ExtractVariables policy
 └── image/                      # Containerized Microservice Code
-    ├── Dockerfile                  # Production container definition (baked model weights)
+    ├── Dockerfile                  # Container definition (baked model weights)
     ├── main.py                     # FastAPI application & Semantic Router logic
     ├── preload_models.py           # Build-time model downloader
     ├── requirements.txt            # Microservice Python dependencies

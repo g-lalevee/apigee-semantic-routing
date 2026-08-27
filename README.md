@@ -231,6 +231,24 @@ IMAGE_TAG="v1.0.3" \
 
 ---
 
+### 4. Cold Starts & Scaling Configuration
+
+> [!NOTE]
+> The scale-down limit (minimum instances) of the Cloud Run service is set to zero (to minimize costs when idle): the first call after a period of inactivity will trigger a cold start. Because the container must boot and pre-warm the local semantic router model weights (which takes a few seconds), this first call will take longer and may result in a `504 Gateway Timeout` error if your client or Apigee ServiceCallout timeout is set too low.
+
+To prevent cold starts and ensure sub-10ms response times for all calls, you can configure Cloud Run to keep at least one instance warm:
+
+- **Via the Deployment Script**: Modify the `--min-instances` parameter in [`deploy.sh`](file:///Users/lalevee/Documents/devs/Apigee-semantic-router-cloudrun/deploy.sh). Setting `--min-instances=1` keeps at least one instance warm to eliminate cold-start latencies, while `--min-instances=0` allows the service to scale down to zero to save costs.
+- **Via the Google Cloud Console UI**:
+  1. Open the **Google Cloud Console** and navigate to **Cloud Run**.
+  2. Click on your deployed **`semantic-router`** service.
+  3. Click **Edit & Deploy New Revision** at the top.
+  4. Scroll down to the **Scaling** section.
+  5. Set the **Minimum number of instances** to `1` (to keep an instance warm) or `0` (to enable scale-to-zero).
+  6. Click **Deploy**.
+
+---
+
 ## Apigee API Proxy Configuration
 
 Follow these steps to create and configure an Apigee API Proxy that uses the two policies provided in the [`apigee/`](apigee/) folder to dynamically classify and route user queries to downstream LLMs:
